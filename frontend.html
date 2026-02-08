@@ -1,656 +1,90 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>备忘录应用</title>
+    <title>简易备忘录</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            color: white;
-        }
-
-        .header h1 {
-            font-size: 3rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-        }
-
-        .app-wrapper {
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-        }
-
-        @media (min-width: 768px) {
-            .app-wrapper {
-                flex-direction: row;
-            }
-        }
-
-        .card {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        }
-
-        .form-section {
-            flex: 1;
-        }
-
-        .list-section {
-            flex: 2;
-        }
-
-        h2 {
-            color: #333;
-            margin-bottom: 25px;
-            font-size: 1.8rem;
-            position: relative;
-            padding-bottom: 10px;
-        }
-
-        h2:after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 50px;
-            height: 4px;
-            background: linear-gradient(to right, #667eea, #764ba2);
-            border-radius: 2px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-weight: 500;
-        }
-
-        input, textarea {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: all 0.3s;
-            font-family: inherit;
-        }
-
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        textarea {
-            min-height: 120px;
-            resize: vertical;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 16px 32px;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn i {
-            font-size: 20px;
-        }
-
-        .memos-container {
-            max-height: 600px;
-            overflow-y: auto;
-            padding-right: 10px;
-        }
-
-        .memo-list {
-            list-style: none;
-        }
-
-        .memo-item {
-            background: #f8f9fa;
-            border-left: 5px solid #667eea;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 15px;
-            position: relative;
-            transition: all 0.3s;
-        }
-
-        .memo-item:hover {
-            transform: translateX(5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .memo-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .memo-title {
-            font-weight: 600;
-            color: #333;
-            font-size: 1.2rem;
-        }
-
-        .memo-id {
-            background: #667eea;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        .memo-content {
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 15px;
-        }
-
-        .memo-date {
-            color: #999;
-            font-size: 0.9rem;
-            text-align: right;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #999;
-        }
-
-        .empty-state i {
-            font-size: 48px;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-
-        .empty-state p {
-            font-size: 1.1rem;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #667eea;
-        }
-
-        .error {
-            background: #ffe6e6;
-            color: #d32f2f;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            border-left: 5px solid #d32f2f;
-        }
-
-        .success {
-            background: #e6ffe6;
-            color: #2e7d32;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            border-left: 5px solid #2e7d32;
-        }
-
-        .stats {
-            display: flex;
-            justify-content: space-between;
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #667eea;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: #999;
-        }
-
-        .actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .action-btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.2s;
-        }
-
-        .delete-btn {
-            background: #ffebee;
-            color: #d32f2f;
-        }
-
-        .delete-btn:hover {
-            background: #ffcdd2;
-        }
-
-        .edit-btn {
-            background: #e8eaf6;
-            color: #3f51b5;
-        }
-
-        .edit-btn:hover {
-            background: #c5cae9;
-        }
-
-        /* 滚动条样式 */
-        .memos-container::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .memos-container::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 4px;
-        }
-
-        .memos-container::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 4px;
-        }
-
-        .memos-container::-webkit-scrollbar-thumb:hover {
-            background: #a1a1a1;
-        }
+        body { font-family: Arial; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .memo { border: 1px solid #ddd; padding: 10px; margin: 10px 0; }
+        input, textarea { width: 100%; margin-bottom: 10px; }
     </style>
-    <!-- 使用 Font Awesome 图标 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1><i class="fas fa-sticky-note"></i> 智能备忘录</h1>
-            <p>简洁高效的记事工具，随时随地记录您的想法</p>
-        </div>
+    <h1>简易备忘录</h1>
 
-        <div class="app-wrapper">
-            <!-- 左侧：新增备忘录 -->
-            <div class="card form-section">
-                <h2><i class="fas fa-plus-circle"></i> 新增备忘录</h2>
-
-                <div id="message"></div>
-
-                <form id="memoForm">
-                    <div class="form-group">
-                        <label for="title"><i class="fas fa-heading"></i> 标题</label>
-                        <input type="text" id="title" placeholder="输入备忘录标题" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="content"><i class="fas fa-edit"></i> 内容</label>
-                        <textarea id="content" placeholder="记录您的想法、任务或提醒..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="category"><i class="fas fa-tag"></i> 分类 (可选)</label>
-                        <input type="text" id="category" placeholder="工作、生活、学习等">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="priority"><i class="fas fa-flag"></i> 优先级</label>
-                        <select id="priority" style="width: 100%; padding: 15px; border-radius: 10px; border: 2px solid #e0e0e0; font-size: 16px;">
-                            <option value="low">低</option>
-                            <option value="medium" selected>中</option>
-                            <option value="high">高</option>
-                        </select>
-                    </div>
-
-                    <button type="submit" class="btn">
-                        <i class="fas fa-save"></i> 保存备忘录
-                    </button>
-                </form>
-            </div>
-
-            <!-- 右侧：备忘录列表 -->
-            <div class="card list-section">
-                <h2><i class="fas fa-list"></i> 备忘录列表</h2>
-
-                <div class="stats">
-                    <div class="stat-item">
-                        <div class="stat-value" id="totalCount">0</div>
-                        <div class="stat-label">总计</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="todayCount">0</div>
-                        <div class="stat-label">今日新增</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="highPriority">0</div>
-                        <div class="stat-label">高优先级</div>
-                    </div>
-                </div>
-
-                <div class="memos-container">
-                    <div id="loading" class="loading">
-                        <i class="fas fa-spinner fa-spin"></i> 加载中...
-                    </div>
-
-                    <div id="emptyState" class="empty-state" style="display: none;">
-                        <i class="far fa-clipboard"></i>
-                        <p>还没有备忘录，开始记录吧！</p>
-                    </div>
-
-                    <ul id="memoList" class="memo-list">
-                        <!-- 备忘录会动态加载到这里 -->
-                    </ul>
-                </div>
-
-                <div style="margin-top: 20px; text-align: center;">
-                    <button onclick="loadMemos()" class="btn" style="background: #4CAF50;">
-                        <i class="fas fa-sync-alt"></i> 刷新列表
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div style="text-align: center; margin-top: 30px; color: white; opacity: 0.8;">
-            <p><i class="fas fa-code"></i> 由 Flask API 提供支持 | 数据持久化存储</p>
-        </div>
+    <!-- 添加备忘录表单 -->
+    <div>
+        <input type="text" id="title" placeholder="标题">
+        <textarea id="content" placeholder="内容"></textarea>
+        <button onclick="addMemo()">添加</button>
     </div>
 
+    <!-- 备忘录列表 -->
+    <div id="memoList"></div>
+
     <script>
-        // API 基础 URL - 请根据你的实际部署修改
-        const API_BASE_URL = 'http://' + window.location.hostname + ':5000';
-
-        // DOM 元素
-        const memoForm = document.getElementById('memoForm');
-        const memoList = document.getElementById('memoList');
-        const loading = document.getElementById('loading');
-        const emptyState = document.getElementById('emptyState');
-        const messageDiv = document.getElementById('message');
-        const totalCount = document.getElementById('totalCount');
-        const todayCount = document.getElementById('todayCount');
-        const highPriority = document.getElementById('highPriority');
-
-        // 初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            loadMemos();
-
-            // 表单提交事件
-            memoForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                addMemo();
-            });
-        });
-
-        // 显示消息
-        function showMessage(text, type = 'success') {
-            messageDiv.innerHTML = `
-                <div class="${type}">
-                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
-                    ${text}
-                </div>
-            `;
-
-            setTimeout(() => {
-                messageDiv.innerHTML = '';
-            }, 3000);
-        }
+        // 后端API地址（根据实际情况修改）
+        const API_URL = 'http://115.29.206.72:5000';
 
         // 加载所有备忘录
         async function loadMemos() {
             try {
-                loading.style.display = 'block';
-                emptyState.style.display = 'none';
-                memoList.innerHTML = '';
-
-                const response = await fetch(`${API_BASE_URL}/memos`);
-                if (!response.ok) {
-                    throw new Error('网络响应错误');
-                }
-
+                const response = await fetch(`${API_URL}/memos`);
                 const memos = await response.json();
 
-                // 更新统计
-                updateStats(memos);
-
+                let html = '<h2>备忘录列表</h2>';
                 if (memos.length === 0) {
-                    loading.style.display = 'none';
-                    emptyState.style.display = 'block';
-                    return;
+                    html += '<p>暂无备忘录</p>';
+                } else {
+                    memos.forEach(memo => {
+                        html += `
+                            <div class="memo">
+                                <h3>${memo.title || '无标题'}</h3>
+                                <p>${memo.content || ''}</p>
+                                <small>ID: ${memo.id}</small>
+                            </div>
+                        `;
+                    });
                 }
-
-                // 渲染备忘录列表
-                renderMemos(memos);
-
+                document.getElementById('memoList').innerHTML = html;
             } catch (error) {
                 console.error('加载失败:', error);
-                memoList.innerHTML = `
-                    <div class="error">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        加载失败: ${error.message}
-                    </div>
-                `;
-            } finally {
-                loading.style.display = 'none';
+                alert('加载失败: ' + error.message);
             }
-        }
-
-        // 更新统计信息
-        function updateStats(memos) {
-            totalCount.textContent = memos.length;
-
-            // 计算今日新增
-            const today = new Date().toDateString();
-            const todayMemos = memos.filter(memo => {
-                if (!memo.createdAt) return false;
-                return new Date(memo.createdAt).toDateString() === today;
-            });
-            todayCount.textContent = todayMemos.length;
-
-            // 计算高优先级
-            const highPriorityMemos = memos.filter(memo => memo.priority === 'high');
-            highPriority.textContent = highPriorityMemos.length;
-        }
-
-        // 渲染备忘录列表
-        function renderMemos(memos) {
-            memoList.innerHTML = '';
-
-            // 按优先级排序
-            const priorityOrder = { high: 1, medium: 2, low: 3 };
-            memos.sort((a, b) => {
-                const priorityA = priorityOrder[a.priority] || 2;
-                const priorityB = priorityOrder[b.priority] || 2;
-                return priorityA - priorityB;
-            });
-
-            memos.forEach(memo => {
-                const memoItem = document.createElement('li');
-                memoItem.className = 'memo-item';
-
-                // 根据优先级设置不同的边框颜色
-                const priorityColors = {
-                    high: '#f44336',
-                    medium: '#ff9800',
-                    low: '#4caf50'
-                };
-                memoItem.style.borderLeftColor = priorityColors[memo.priority] || '#667eea';
-
-                // 格式化日期
-                const date = memo.createdAt ?
-                    new Date(memo.createdAt).toLocaleString('zh-CN') :
-                    '未知时间';
-
-                memoItem.innerHTML = `
-                    <div class="memo-header">
-                        <div class="memo-title">${memo.title || '无标题'}</div>
-                        <div class="memo-id">#${memo.id}</div>
-                    </div>
-
-                    <div class="memo-content">${memo.content || ''}</div>
-
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            ${memo.category ? `<span style="background: #e3f2fd; color: #1976d2; padding: 4px 12px; border-radius: 20px; font-size: 0.9rem;">
-                                <i class="fas fa-tag"></i> ${memo.category}
-                            </span>` : ''}
-
-                            <span style="margin-left: 10px; background: ${memo.priority === 'high' ? '#ffebee' : memo.priority === 'medium' ? '#fff3e0' : '#e8f5e8'};
-                                      color: ${memo.priority === 'high' ? '#d32f2f' : memo.priority === 'medium' ? '#f57c00' : '#388e3c'};
-                                      padding: 4px 12px; border-radius: 20px; font-size: 0.9rem;">
-                                <i class="fas fa-flag"></i>
-                                ${memo.priority === 'high' ? '高优先级' : memo.priority === 'medium' ? '中优先级' : '低优先级'}
-                            </span>
-                        </div>
-
-                        <div class="actions">
-                            <button onclick="editMemo(${memo.id})" class="action-btn edit-btn">
-                                <i class="fas fa-edit"></i> 编辑
-                            </button>
-                            <button onclick="deleteMemo(${memo.id})" class="action-btn delete-btn">
-                                <i class="fas fa-trash"></i> 删除
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="memo-date">
-                        <i class="far fa-clock"></i> ${date}
-                    </div>
-                `;
-
-                memoList.appendChild(memoItem);
-            });
         }
 
         // 添加新备忘录
         async function addMemo() {
             const title = document.getElementById('title').value;
             const content = document.getElementById('content').value;
-            const category = document.getElementById('category').value;
-            const priority = document.getElementById('priority').value;
 
-            const memoData = {
-                title: title.trim(),
-                content: content.trim(),
-                category: category.trim() || '未分类',
-                priority: priority,
-                createdAt: new Date().toISOString()
-            };
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/memos`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(memoData)
-                });
-
-                if (!response.ok) {
-                    throw new Error('添加失败');
-                }
-
-                const result = await response.json();
-
-                // 清空表单
-                memoForm.reset();
-
-                // 显示成功消息
-                showMessage(`备忘录已添加，ID: ${result.id}`, 'success');
-
-                // 重新加载列表
-                loadMemos();
-
-            } catch (error) {
-                console.error('添加失败:', error);
-                showMessage('添加失败: ' + error.message, 'error');
-            }
-        }
-
-        // 删除备忘录
-        async function deleteMemo(id) {
-            if (!confirm('确定要删除这个备忘录吗？')) {
+            if (!title || !content) {
+                alert('请填写标题和内容');
                 return;
             }
 
-            // 注意：你的后端目前没有删除接口
-            // 这里先从前端移除，实际需要后端支持
-            showMessage('删除功能需要后端支持，目前仅演示', 'error');
-        }
+            try {
+                const response = await fetch(`${API_URL}/memos`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, content })
+                });
 
-        // 编辑备忘录
-        async function editMemo(id) {
-            // 注意：你的后端目前没有编辑接口
-            // 这里先演示编辑表单填充
-            const title = prompt('请输入新的标题:');
-            if (title) {
-                showMessage('编辑功能需要后端支持，目前仅演示', 'error');
+                if (response.ok) {
+                    alert('添加成功！');
+                    document.getElementById('title').value = '';
+                    document.getElementById('content').value = '';
+                    loadMemos(); // 刷新列表
+                } else {
+                    throw new Error('添加失败');
+                }
+            } catch (error) {
+                alert('添加失败: ' + error.message);
             }
         }
 
-        // 每30秒自动刷新
-        setInterval(loadMemos, 30000);
+        // 页面加载时自动加载备忘录
+        window.onload = loadMemos;
     </script>
 </body>
 </html>
